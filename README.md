@@ -17,10 +17,23 @@ Account email and view ID need to be obtained from your google account details. 
 
 Build a docker image:
 ```
-docker build -t <image-name> .
-docker run -d --restart=always -p 9173:9173 -e IMAGES="your@user.com" -e VIEW_ID="viewID" -e START_DATE="2010-01-01" <image-name>
+docker build -t gar-exporter .
+docker run \
+  -p 9173:9173 \
+  -e ACCOUNT_EMAIL="your@user.com" \
+  gar-exporter
 ```
 
 ## Metrics
 
 Metrics will be made available on port 9173 by default
+
+## Unit Test
+```
+docker run \
+  --name gar-exporter \
+  --rm \
+  -v $PWD:/usr/src/app \
+  gar-exporter \
+  python unitTest.py
+```
