@@ -17,10 +17,12 @@ Account email and view ID need to be obtained from your google account details. 
 
 Build a docker image:
 ```
-docker build -t gar-exporter .
+docker build -t gar-exporter . &&\
 docker run \
   -p 9173:9173 \
   -e ACCOUNT_EMAIL="your@user.com" \
+  -v $PWD/client_secrets.p12:/usr/src/app/client_secrets.p12 \
+  -v $PWD/config.yaml:/usr/src/app/config.yaml \
   gar-exporter
 ```
 
