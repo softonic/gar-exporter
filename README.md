@@ -57,6 +57,18 @@ docker run \
   gar-exporter
 ```
 
+You have a build image available in https://hub.docker.com/repository/docker/softonic/gar-exporter
+Instead of build your own image you can use it with:
+```
+docker pull softonic/gar-exporter:latest &&\
+docker run \
+  -p 9173:9173 \
+  -e ACCOUNT_EMAIL="your@user.com" \
+  -v $PWD/client_secrets.p12:/usr/src/app/client_secrets.p12 \
+  -v $PWD/config.yaml:/usr/src/app/config.yaml \
+  softonic/gar-exporter:latest
+```
+
 ## Metrics
 If you don't provide the `BIND_PORT` parameter metrics will be made available on port 9173 by default
 
