@@ -5,13 +5,44 @@ Exposes a set of basic metrics from the Google Analytics Reporting API (V4), to 
 
 ## Configuration
 
-This exporter is setup to take the following parameters from environment variables:
+This exporter is set up to take the following parameters from environment variables:
 * `BIND_PORT` The port you wish to run the container on, defaults to 9173
-* `START_DATE` The start date you wish to pass to the API, you can't deal with totals here so set it to before you began monitoring. Format: `YYYY-MM-DD`
 * `ACCOUNT_EMAIL` The email address of the service account given access to the API
-* `VIEW_ID` The 'view_id' that google assigns to your sites statistics
 
-Account email and view ID need to be obtained from your google account details. Details on how can be found [here](https://developers.google.com/analytics/devguides/reporting/core/v4/) You also need to supply a PEM file with a key to access the API, details on this link above.
+Account email and view ID need to be obtained from your Google account details. Details on how can be found [here](https://developers.google.com/analytics/devguides/reporting/core/v4/)
+You also need to supply a PEM file (P12 format) with a key to access the API, details on this link above.
+
+On other hand the reports need to be defined in a YAML file with a structure like this:
+
+```yaml
+reports:
+  - viewId: '<VIEW-ID-1>'
+    startDate: 'today'
+    endDate: 'today'
+    metrics:
+      - expressions:
+          - 'ga:totalEvents'
+          - 'ga:uniqueEvents'
+        dimensions:
+          - 'ga:dimension1'
+      - expressions:
+          - 'ga:avgServerResponseTime'
+          - 'ga:avgPageLoadTime'
+        dimensions:
+          - 'ga:eventAction'
+  - viewId: '<VIEW-ID-2>'
+    startDate: '2020-01-01'
+    endDate: 'today'
+    metrics:
+      - expressions:
+          - 'ga:totalEvents'
+          - 'ga:uniqueEvents'
+        dimensions:
+          - 'ga:eventAction'
+```
+You can add as many VIEW-IDs as you want and define the metrics to obtain in blocks of 10 requests as much, it's a limitation of the GA API.
+
+The application expects to find the config file in the path `/usr/src/app/config.yaml`, and the credentials file in `/usr/src/app/client_secrets.p12`.
 
 ## Install and deploy
 
@@ -27,10 +58,11 @@ docker run \
 ```
 
 ## Metrics
-
-Metrics will be made available on port 9173 by default
+If you don't provide the `BIND_PORT` parameter metrics will be made available on port 9173 by default
 
 ## Unit Test
+There's a basic Unit Test created that you can launch to check the reports YAML configuration structure fits what the Google API expects to get.
+
 ```
 docker run \
   --name gar-exporter \
