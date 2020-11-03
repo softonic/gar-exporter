@@ -33,7 +33,15 @@ class TestGarExporter(unittest.TestCase):
           - ga:uniqueEvents
         dimensions:
           - ga:eventAction
-
+  - viewId: 123312345
+    startDate: '2020-01-01'
+    endDate: '2020-09-01'
+    metrics:
+      - expressions:
+          - ga:sessions
+          - ga:uniqueEvents
+        segments:
+          - regionB: 'gaid::ASDFGHI'
 """
         expectedOutput = [
           {
@@ -67,7 +75,20 @@ class TestGarExporter(unittest.TestCase):
 
             ],
             'segmentsList': [[],[]]
-          }
+          },
+          {
+            'reportRequests':
+            [
+              {
+                 'viewId': 123312345,
+                 'dateRanges': [{'startDate': '2020-01-01', 'endDate': '2020-09-01'}],
+                 'metrics': [{'expression': 'ga:sessions'}, {'expression': 'ga:uniqueEvents'}],
+                 'dimensions': [{'name': 'ga:segment'}],
+                 'segments': [{'segmentId': 'gaid::ASDFGHI'}]
+              },
+            ],
+            'segmentsList': [[{'gaid::ASDFGHI': 'regionB'}]]
+          },
         ]
         output = helper.yamlToReportRequests(yaml.load(inputyaml,Loader=yaml.FullLoader))
 #         print("......................")

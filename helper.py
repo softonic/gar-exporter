@@ -11,8 +11,9 @@ def yamlToReportRequests(config):
           for expression in metric.get('expressions'):
             structMetrics.append({'expression': expression})
 
-          for dimension in metric.get('dimensions'):
-            structDimensions.append({'name': dimension})
+          if metric.get('dimensions'):
+            for dimension in metric.get('dimensions'):
+              structDimensions.append({'name': dimension})
 
           structReportRequest = {
             'viewId': report['viewId'],
