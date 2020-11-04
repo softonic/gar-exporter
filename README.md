@@ -114,6 +114,14 @@ docker run \
   softonic/gar-exporter:latest
 ```
 
+### Deploy via Helm chart to Kubernetes
+This is provided with a Helm chart that can be used to install this system in a Kubernetes cluster.
+You need to provide a secret with the service account data and reference it in the `values.yaml` file.
+
+```
+helm upgrade --install --namespace gar-exporter gar-exporter helm/gar-exporter
+```
+
 ## Metrics
 If you don't provide the `BIND_PORT` parameter metrics will be made available on port 9173 by default
 

@@ -1,0 +1,18 @@
+apiVersion: v2
+name: gar-exporter
+description: Prometheus Exporter for Google Analytics Reporting API
+type: application
+version: 0.1.0
+appVersion: 0.2.1
+icon: https://developers.google.com/analytics/images/terms/logo_lockup_analytics_icon_vertical_white_2x.png
+keywords:
+  - prometheus
+  - exporter
+  - google-analytics
+  - google-analytics-reporting
+maintainers:
+  - email: basilio.vera@softonic.com
+    name: Basilio Vera
+sources:
+  - https://github.com/softonic/gar-exporter
+

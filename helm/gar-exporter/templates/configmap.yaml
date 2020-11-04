@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "gar-exporter.fullname" . }}
+  labels:
+  {{- include "gar-exporter.labels" . | nindent 4 }}
+data:
+  config.yaml: |-
+    reports:
+      {{- toYaml (.Values.reports) | nindent 6 }}
