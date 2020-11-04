@@ -80,7 +80,7 @@ affinity: {}
 
 env: {}
 #  CONFIG_FILE: /etc/gar-exporter/config/config.yaml
-#  SERVICE_ACCOUNT_FILE: /etc/gar-exporter/credentials/credentials.yaml
+#  SERVICE_ACCOUNT_FILE: /etc/gar-exporter/credentials/credentials.json
 
 volumeMounts:
 #  - name: credentials-file
@@ -95,8 +95,8 @@ volumes:
 #    secret:
 #      secretName: credentials-file
 #      items:
-#        - key: credentials.yaml
-#          path: credentials.yaml
+#        - key: credentials.json
+#          path: credentials.json
 #          mode: 511
 
 reports: []
