@@ -3,3 +3,5 @@ __pycache__/*
 config.yaml
 *.p12
 *.json
+helm/gar-exporter/values-test.yaml
+helm/gar-exporter/templates/secret.yaml
