@@ -1,23 +1,27 @@
 from prometheus_client import start_http_server
 from prometheus_client.core import GaugeMetricFamily, REGISTRY
 from apiclient.discovery import build
+from apiclient.errors import HttpError
+from datetime import datetime
 from oauth2client.service_account import ServiceAccountCredentials
 
-import time, httplib2, os, bios, helper
+import time, httplib2, os, bios, helper, json
 
 class GarCollector(object):
+  lastResponses = {}
+
   def collect(self):
     self._gauges = {}
     analytics = self._initialize_analyticsreporting()
-    print("Authorized to talk with Analytics v4 API")
+    print("[",datetime.now(),"]","Authorized to talk with Analytics v4 API")
     reports = helper.yamlToReportRequests(bios.read(CONFIG_FILE))
     for report in reports:
-        print("[REPORT REQUEST] ", report)
+        print("[",datetime.now(),"]","[REPORT REQUEST]", report)
         segmentsList = report['segmentsList']
         del report['segmentsList']
 
-        response = self._get_report(analytics, report)
-        print("[RESPONSE OBTAINED]")
+        response = self._requestWithExponentialBackoff(analytics, report)
+        print("[",datetime.now(),"]","RESPONSE OBTAINED")
         self._get_metrics(
           response,
           report.get('reportRequests')[0].get('viewId'),
@@ -44,6 +48,39 @@ class GarCollector(object):
     return analytics.reports().batchGet(
       body=report
     ).execute()
+
+  def _requestWithExponentialBackoff(self, analytics, report):
+      """Wrapper to request Google Analytics data with exponential backoff.
+
+      The makeRequest method accepts the analytics service object, makes API
+      requests and returns the response. If any error occurs, the makeRequest
+      method is retried using exponential backoff.
+
+      Args:
+        analytics: The analytics service object
+        report: Report request structure
+
+      Returns:
+        The API response from the _get_report method.
+      """
+
+      reportId = hash(json.dumps(report))
+      for n in range(0, 5):
+        try:
+          response = self._get_report(analytics, report)
+          self.lastResponses[reportId] = response
+          return response
+
+        except HttpError as error:
+          if error.resp.reason in ['userRateLimitExceeded', 'quotaExceeded',
+                                   'internalServerError', 'backendError']:
+            time.sleep((2 ** n) + random.random())
+            print("[WARNING] Http request error", error.resp.reason)
+          else:
+            break
+
+      print("[",datetime.now(),"]","[ERROR] There has been an error, the request never succeeded, returning earlier result")
+      return self.lastResponses[reportId]
 
   def _get_metrics(self, response, viewId, dateRanges, segmentsList):
     METRIC_PREFIX = 'ga_reporting'
@@ -92,8 +129,8 @@ if __name__ == '__main__':
   SERVICE_ACCOUNT_FILE = os.getenv('SERVICE_ACCOUNT_FILE')
   CONFIG_FILE=os.getenv('CONFIG_FILE')
 
-  print("Starting server in 0.0.0.0:" + os.getenv('BIND_PORT'))
+  print("[",datetime.now(),"]","Starting server in 0.0.0.0:" + os.getenv('BIND_PORT'))
   start_http_server(int(os.getenv('BIND_PORT')))
   REGISTRY.register(GarCollector())
-  print("Waiting for serving metrics")
+  print("[",datetime.now(),"]","Waiting for serving metrics")
   while True: time.sleep(1)
