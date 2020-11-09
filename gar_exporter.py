@@ -72,14 +72,14 @@ class GarCollector(object):
           return response
 
         except HttpError as error:
+          print("[WARNING] Http request error", error.resp.reason)
           if error.resp.reason in ['userRateLimitExceeded', 'quotaExceeded',
                                    'internalServerError', 'backendError']:
             time.sleep((2 ** n) + random.random())
-            print("[WARNING] Http request error", error.resp.reason)
           else:
             break
 
-      print("[",datetime.now(),"]","[ERROR] There has been an error, the request never succeeded, returning earlier result")
+      print("[",datetime.now(),"]","[ERROR] There has been an error, returning earlier result", reportId)
       return self.lastResponses[reportId]
 
   def _get_metrics(self, response, viewId, dateRanges, segmentsList):

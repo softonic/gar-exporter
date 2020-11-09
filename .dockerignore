@@ -1,4 +1,7 @@
 *.p12
+*.json
 config.yaml
 *.log
-helm/*
+helm
+.git
+.idea
